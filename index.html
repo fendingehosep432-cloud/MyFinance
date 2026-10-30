@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: blob:;" />
+  <meta name="theme-color" content="#090d16" />
+  <title>Финансы</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #111827;
+      --card-2: #1e293b;
+      --border: #1f2937;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --green: #10b981;
+      --red: #f43f5e;
+      --blue: #0ea5e9;
+      --amber: #f59e0b;
+      --indigo: #6366f1;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+    input, textarea, button {
+      font-family: inherit;
+      outline: none;
+      border: none;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 14px 14px 86px 14px;
+    }
+    .balance-card {
+      background: linear-gradient(145deg, #131c31 0%, #0f172a 100%);
+      border: 1px solid #26334d;
+      border-radius: 24px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .label-up {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .main-balance {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 6px 0 14px 0;
+      letter-spacing: -0.5px;
+    }
+    .accounts-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .acc-box {
+      background: rgba(9, 13, 22, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .acc-box.right { padding-left: 20px; }
+    .acc-title { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .acc-val { font-size: 15px; font-weight: 700; }
+    .swap-btn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .balance-footer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .btn-main {
+      padding: 14px;
+      border-radius: 18px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .btn-inc { background: var(--green); }
+    .btn-exp { background: var(--red); }
+    .btn-main:active { transform: scale(0.98); }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 6px;
+    }
+    .section-title { font-size: 15px; font-weight: 700; }
+    .section-sub { font-size: 11px; color: var(--muted); }
+    .chip-btn {
+      background: rgba(99, 102, 241, 0.16);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #a5b4fc;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .envelopes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 480px) {
+      .envelopes-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .env-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 11px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 94px;
+      cursor: pointer;
+    }
+    .env-card.empty {
+      opacity: 0.68;
+      background: rgba(17, 24, 39, 0.55);
+    }
+    .env-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .env-name { font-size: 12px; font-weight: 600; margin-top: 3px; }
+    .env-plus {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: #1e293b;
+      color: var(--green);
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .env-bal { font-size: 14px; font-weight: 700; margin-top: 8px; }
+    .progress-bar {
+      width: 100%;
+      height: 5px;
+      background: #1e293b;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 99px;
+    }
+    .tx-list { display: flex; flex-direction: column; gap: 8px; }
+    .tx-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .tx-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .tx-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .tx-cat { font-size: 14px; font-weight: 600; }
+    .tx-badge {
+      font-size: 10px;
+      background: #1e293b;
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-left: 4px;
+    }
+    .tx-comment {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 185px;
+    }
+    .tx-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .tx-sum { font-size: 14px; font-weight: 700; text-align: right; }
+    .tx-date { font-size: 11px; color: var(--muted); text-align: right; margin-top: 2px; }
+    .del-btn {
+      background: transparent;
+      color: #64748b;
+      font-size: 15px;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    /* Минималистичная нижняя панель только из 2 вкладок */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(9, 13, 22, 0.96);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      z-index: 40;
+    }
+    .nav-btn {
+      background: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px;
+      cursor: pointer;
+    }
+    .nav-btn.active { color: var(--green); }
+
+    /* Модальные окна */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-sheet {
+      width: 100%;
+      max-width: 540px;
+      background: #111827;
+      border-top: 1px solid #26334d;
+      border-radius: 26px 26px 0 0;
+      padding: 18px;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    .seg-row {
+      display: grid;
+      gap: 6px;
+      background: #090d16;
+      padding: 5px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin: 10px 0;
+    }
+    .seg-btn {
+      padding: 9px 6px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .seg-btn.active-blue { background: var(--blue); color: #fff; }
+    .seg-btn.active-green { background: var(--green); color: #fff; }
+    .seg-btn.active-red { background: var(--red); color: #fff; }
+    .seg-btn.active-slate { background: #334155; color: #fff; }
+
+    .input-big {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid #26334d;
+      border-radius: 16px;
+      padding: 13px 14px;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .calc-preview {
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 8px;
+      min-height: 16px;
+    }
+    .input-sm {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .cat-pick {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: left;
+      color: #fff;
+      cursor: pointer;
+    }
+    .cat-pick.empty { opacity: 0.48; }
+    .notice-box {
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .notice-amber {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fde68a;
+    }
+    .notice-red {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #fecdd3;
+      text-align: center;
+    }
+    .stat-pill {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .toast {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #064e3b;
+      border: 1px solid var(--green);
+      color: #ecfdf5;
+      padding: 10px 16px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 200;
+      max-width: 92vw;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+    .toast.err {
+      background: #4c0519;
+      border-color: var(--red);
+      color: #ffe4e6;
+    }
+  </style>
+</head>
+<body>
+  <div id="toastBox"></div>
+  <div class="app-container" id="appRoot"></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav_home" onclick="switchTab('home')">
+      <span style="font-size:17px">🏠</span>
+      <span>Главная</span>
+    </button>
+    <button class="nav-btn" id="nav_vault" onclick="switchTab('vault')">
+      <span style="font-size:17px">🛡️</span>
+      <span>Копилка •••</span>
+    </button>
+  </nav>
+
+  <div id="modalRoot"></div>
+
+  <script>
+    const STORAGE_KEY = 'fin_apk_v5_pro';
+    let actionLocked = false;
+
+    function haptic(ms = 15) {
+      try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
+    }
+
+    function canProceed() {
+      if (actionLocked) return false;
+      actionLocked = true;
+      setTimeout(() => { actionLocked = false; }, 280);
+      haptic(15);
+      return true;
+    }
+
+    const DEFAULT_STATE = {
+      accounts: { card: 48500, cash: 6500 },
+      envelopes: {
+        housing: 21000, groceries: 12000, fuel: 4500, auto: 3000,
+        household: 2000, comms: 1200, medicine: 0, treats: 3000
+      },
+      salaryTemplate: {
+        housing: 21000, groceries: 15000, fuel: 5000, auto: 3000,
+        household: 2500, comms: 1200, medicine: 1500, treats: 4000
+      },
+      lastAccByCat: {
+        fuel: 'card', groceries: 'card', sidejob: 'cash', salary: 'card'
+      },
+      cushion: { current: 120000, target: 200000 },
+      goals: [
+        { id: 'g1', name: 'Отпуск', current: 35000, target: 90000, icon: '🏔️' },
+        { id: 'g2', name: 'Снаряжение', current: 22000, target: 65000, icon: '🎯' }
+      ],
+      expenseCategories: [
+        { id: 'housing', name: 'Жилье', icon: '🏠' },
+        { id: 'auto', name: 'Авто', icon: '🚗' },
+        { id: 'fuel', name: 'Топливо', icon: '⛽' },
+        { id: 'groceries', name: 'Продукты', icon: '🛒' },
+        { id: 'household', name: 'Быт', icon: '🧻' },
+        { id: 'comms', name: 'Связь', icon: '📱' },
+        { id: 'medicine', name: 'Медицина', icon: '💊' },
+        { id: 'treats', name: 'Для себя', icon: '🎯' }
+      ],
+      incomeSources: [
+        { id: 'salary', name: 'Основная ЗП', icon: '💼' },
+        { id: 'sidejob', name: 'Подработка', icon: '🚕' },
+        { id: 'other_inc', name: 'Прочее', icon: '⚡' }
+      ],
+      transactions: [
+        {
+          id: 't1', type: 'expense', amount: 1850, categoryId: 'fuel',
+          categoryName: 'Топливо', categoryIcon: '⛽', account: 'card',
+          comment: 'Полный бак газ/бензин', date: '29 окт, 09:40', fromEnvelope: true
+        },
+        {
+          id: 't2', type: 'income', amount: 3400, categoryId: 'sidejob',
+          categoryName: 'Подработка', categoryIcon: '🚕', account: 'cash',
+          comment: 'Вечерняя смена', date: '28 окт, 22:15', fromEnvelope: false
+        }
+      ]
+    };
+
+    // Безопасный парсер выражений (например: "4200-900" или "1500+350") без eval()
+    function calcMath(raw) {
+      const cleaned = String(raw || '').replace(/\s+/g, '').replace(/,/g, '.');
+      if (!cleaned || !/^[0-9+\-*/.]+$/.test(cleaned)) return 0;
+      try {
+        const tokens = cleaned.match(/(\d+\.?\d*|[+\-*/])/g);
+        if (!tokens || !tokens.length) return 0;
+        let currentOp = '+';
+        let total = 0;
+        for (let i = 0; i < tokens.length; i++) {
+          const t = tokens[i];
+          if (t === '+' || t === '-' || t === '*' || t === '/') {
+            currentOp = t;
+          } else {
+            const val = parseFloat(t);
+            if (!Number.isFinite(val)) continue;
+            if (currentOp === '+') total += val;
+            else if (currentOp === '-') total -= val;
+            else if (currentOp === '*') total *= val;
+            else if (currentOp === '/' && val !== 0) total /= val;
+          }
+        }
+        const res = Math.round(total);
+        return res > 0 && res <= 999999999 ? res : 0;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function validateAndSanitizeState(obj) {
+      if (!obj || typeof obj !== 'object') return null;
+      const safe = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      if (obj.accounts && typeof obj.accounts === 'object') {
+        safe.accounts.card = Math.max(0, Math.round(Number(obj.accounts.card) || 0));
+        safe.accounts.cash = Math.max(0, Math.round(Number(obj.accounts.cash) || 0));
+      }
+      if (obj.envelopes && typeof obj.envelopes === 'object') {
+        safe.envelopes = {};
+        Object.keys(obj.envelopes).forEach(k => {
+          safe.envelopes[k] = Math.max(0, Math.round(Number(obj.envelopes[k]) || 0));
+        });
+      }
+      if (obj.salaryTemplate && typeof obj.salaryTemplate === 'object') {
+        safe.salaryTemplate = {};
+        Object.keys(obj.salaryTemplate).forEach(k => {
+          safe.salaryTemplate[k] = Math.max(0, Math.round(Number(obj.salaryTemplate[k]) || 0));
+        });
+      }
+      if (obj.lastAccByCat && typeof obj.lastAccByCat === 'object') {
+        safe.lastAccByCat = obj.lastAccByCat;
+      }
+      if (obj.cushion && typeof obj.cushion === 'object') {
+        safe.cushion.current = Math.max(0, Math.round(Number(obj.cushion.current) || 0));
+        safe.cushion.target = Math.max(1, Math.round(Number(obj.cushion.target) || 100000));
+      }
+      if (Array.isArray(obj.expenseCategories) && obj.expenseCategories.length > 0) {
+        safe.expenseCategories = obj.expenseCategories;
+      }
+      if (Array.isArray(obj.incomeSources) && obj.incomeSources.length > 0) {
+        safe.incomeSources = obj.incomeSources;
+      }
+      if (Array.isArray(obj.goals)) safe.goals = obj.goals;
+      if (Array.isArray(obj.transactions)) safe.transactions = obj.transactions;
+      return safe;
+    }
+
+    let state = loadState();
+    let currentTab = 'home'; // home | vault | history
+    let vaultVisible = false;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('fin_apk_v4_clean');
+        if (raw) {
+          const valid = validateAndSanitizeState(JSON.parse(raw));
+          if (valid) return valid;
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+      render();
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[s]));
+    }
+
+    function fmt(n) {
+      return new Intl.NumberFormat('ru-RU').format(Math.round(Number(n) || 0)) + ' ₽';
+    }
+
+    function nowStr() {
+      const d = new Date();
+      const dt = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }).replace('.', '');
+      const tm = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      return dt + ', ' + tm;
+    }
+
+    function showToast(msg, isErr = false) {
+      const box = document.getElementById('toastBox');
+      box.innerHTML = `<div class="toast ${isErr ? 'err' : ''}">${esc(msg)}</div>`;
+      setTimeout(() => { box.innerHTML = ''; }, 3000);
+    }
+
+    function getTotals() {
+      const total = (state.accounts.card || 0) + (state.accounts.cash || 0);
+      const inEnv = Object.values(state.envelopes || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+      const free = Math.max(0, total - inEnv);
+      return { total, inEnv, free };
+    }
+
+    function switchTab(tab) {
+      haptic(10);
+      currentTab = tab;
+      document.getElementById('nav_home').className = 'nav-btn' + (tab === 'home' || tab === 'history' ? ' active' : '');
+      document.getElementById('nav_vault').className = 'nav-btn' + (tab === 'vault' ? ' active' : '');
+      render();
+    }
+
+    function render() {
+      const root = document.getElementById('appRoot');
+      const { total, inEnv, free } = getTotals();
+
+      if (currentTab === 'home') {
+        const envHtml = state.expenseCategories.map(c => {
+          const bal = state.envelopes[c.id] || 0;
+          const plan = state.salaryTemplate[c.id] || 0;
+          const pct = plan > 0 ? Math.min(100, Math.round((bal / plan) * 100)) : (bal > 0 ? 100 : 0);
+          const empty = bal <= 0;
+          return `
+            <div class="env-card ${empty ? 'empty' : ''}" onclick="openEnvModal('${c.id}', '${empty ? 'topup' : 'spend'}')">
+              <div class="env-top">
+                <div>
+                  <div style="font-size:18px">${esc(c.icon)}</div>
+                  <div class="env-name">${esc(c.name)}</div>
+                </div>
+                <div class="env-plus" onclick="event.stopPropagation(); openEnvModal('${c.id}', 'topup')">+</div>
+              </div>
+              <div>
+                <div class="env-bal" style="color:${empty ? '#64748b' : '#fff'}">${empty ? '0 ₽ (пуст)' : fmt(bal)}</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:${pct}%; background:${empty ? '#334155' : (pct < 25 ? '#f59e0b' : '#10b981')}"></div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const txHtml = state.transactions.slice(0, 5).map(renderTxItem).join('');
+
+        root.innerHTML = `
+          <div class="balance-card">
+            <div class="row-between">
+              <span class="label-up">Общий доступный баланс</span>
+              <button class="chip-btn" onclick="openSettingsModal()">⚙️ Баланс / Бэкап</button>
+            </div>
+            <div class="main-balance">${fmt(total)}</div>
+            <div class="accounts-grid">
+              <div class="acc-box">
+                <div class="acc-title">💳 Карта</div>
+                <div class="acc-val">${fmt(state.accounts.card)}</div>
+              </div>
+              <button class="swap-btn" onclick="openTransferModal()">⇄</button>
+              <div class="acc-box right">
+                <div class="acc-title">💵 Наличные</div>
+                <div class="acc-val">${fmt(state.accounts.cash)}</div>
+              </div>
+            </div>
+            <div class="balance-footer">
+              <span>В конвертах: <b style="color:#fff">${fmt(inEnv)}</b></span>
+              <span>Свободно: <b style="color:var(--green)">${fmt(free)}</b></span>
+            </div>
+          </div>
+
+          <div class="action-grid">
+            <button class="btn-main btn-inc" onclick="openTxModal('income')">＋ Доход</button>
+            <button class="btn-main btn-exp" onclick="openTxModal('expense')">－ Расход</button>
+          </div>
+
+          <div class="section-head">
+            <div>
+              <div class="section-title">Конверты</div>
+              <div class="section-sub">Тап — списать / история, «+» — пополнить</div>
+            </div>
+            <div style="display:flex; gap:6px">
+              <button class="chip-btn" style="background:rgba(16,185,129,0.14); border-color:rgba(16,185,129,0.35); color:#6ee7b7" onclick="openNewMonthModal()">🗓 Месяц</button>
+              <button class="chip-btn" onclick="openTemplateModal()">⚡ Шаблон ЗП</button>
+            </div>
+          </div>
+
+          <div class="envelopes-grid">
+            ${envHtml}
+            <div class="env-card" style="border-style:dashed; align-items:center; justify-content:center; color:var(--muted)" onclick="openNewItemModal('expense')">
+              <div style="font-size:20px">＋</div>
+              <div style="font-size:12px; font-weight:600">Новый конверт</div>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <div class="section-title">Последние 5 операций</div>
+            <button style="background:none; color:var(--blue); font-size:12px; font-weight:700; cursor:pointer" onclick="switchTab('history')">Все и сводка (${state.transactions.length}) →</button>
+          </div>
+          <div class="tx-list">${txHtml || '<div style="color:var(--muted); font-size:13px">Пока нет записей</div>'}</div>
+        `;
+      } else if (currentTab === 'vault') {
+        const cPct = Math.min(100, Math.round((state.cushion.current / Math.max(1, state.cushion.target)) * 100));
+        const goalsHtml = state.goals.map(g => {
+          const pct = Math.min(100, Math.round((g.current / Math.max(1, g.target)) * 100));
+          return `
+            <div class="balance-card" style="background:var(--card); border-color:var(--border)">
+              <div class="row-between">
+                <div style="font-weight:700; font-size:15px">${esc(g.icon)} ${esc(g.name)}</div>
+                <div style="display:flex; gap:6px; align-items:center">
+                  <button class="chip-btn" onclick="openVaultActionModal('goal', '${g.id}', 'editTarget')">
+                    ✎ Цель: ${vaultVisible ? fmt(g.target) : '•••••• ₽'}
+                  </button>
+                  <button class="del-btn" onclick="deleteGoal('${g.id}')">🗑</button>
+                </div>
+              </div>
+              <div style="font-size:22px; font-weight:800; margin:8px 0">${vaultVisible ? fmt(g.current) : '•••••• ₽'}</div>
+              <div class="progress-bar" style="margin-bottom:12px">
+                <div class="progress-fill" style="width:${pct}%; background:var(--blue)"></div>
+              </div>
+              <div class="action-grid" style="margin-bottom:0">
+                <button class="btn-main btn-inc" style="padding:10px; font-size:13px" onclick="openVaultActionModal('goal', '${g.id}', 'deposit')">+ Пополнить</button>
+                <button class="btn-main" style="background:#1e293b; padding:10px; font-size:13px" onclick="openVaultActionModal('goal', '${g.id}', 'withdraw')">− Уменьшить</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        root.innerHTML = `
+          <div class="row-between" style="margin-bottom:14px">
+            <div style="font-size:20px; font-weight:800">🛡️ Копилка и Подушка</div>
+            <button class="chip-btn" onclick="vaultVisible = !vaultVisible; render()">
+              ${vaultVisible ? '🙈 Скрыть' : '👁 Показать'}
+            </button>
+          </div>
+
+          <div class="balance-card">
+            <div class="row-between">
+              <span class="label-up" style="color:var(--green)">Финансовая подушка</span>
+              <button class="chip-btn" onclick="openVaultActionModal('cushion', '', 'editTarget')">
+                ✎ Цель: ${vaultVisible ? fmt(state.cushion.target) : '•••••• ₽'}
+              </button>
+            </div>
+            <div class="main-balance" onclick="vaultVisible = !vaultVisible; render()">
+              ${vaultVisible ? fmt(state.cushion.current) : '•••••• ₽'}
+            </div>
+            <div class="progress-bar" style="margin-bottom:14px">
+              <div class="progress-fill" style="width:${cPct}%"></div>
+            </div>
+            <div class="action-grid" style="margin-bottom:0">
+              <button class="btn-main btn-inc" style="padding:11px; font-size:13px" onclick="openVaultActionModal('cushion', '', 'deposit')">+ Пополнить</button>
+              <button class="btn-main" style="background:#1e293b; padding:11px; font-size:13px" onclick="openVaultActionModal('cushion', '', 'withdraw')">− Уменьшить</button>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <div class="section-title">Целевые накопления</div>
+            <button class="chip-btn" onclick="openNewItemModal('goal')">+ Новая цель</button>
+          </div>
+          ${goalsHtml}
+        `;
+      } else {
+        // Экран полной истории + Сводка по источникам дохода
+        let totalInc = 0;
+        let totalExp = 0;
+        const incBySrc = {};
+        state.transactions.forEach(t => {
+          if (t.type === 'income') {
+            totalInc += t.amount;
+            incBySrc[t.categoryName] = (incBySrc[t.categoryName] || 0) + t.amount;
+          } else {
+            totalExp += t.amount;
+          }
+        });
+
+        const incBreakdownHtml = Object.keys(incBySrc).map(k => `
+          <div class="stat-pill">
+            <span style="color:var(--muted)">${esc(k)}</span>
+            <b style="color:var(--green)">+ ${fmt(incBySrc[k])}</b>
+          </div>
+        `).join('');
+
+        const allTx = state.transactions.map(renderTxItem).join('');
+        root.innerHTML = `
+          <div class="row-between" style="margin-bottom:14px">
+            <button class="chip-btn" onclick="switchTab('home')">← На главную</button>
+            <div style="font-size:16px; font-weight:800">История и Сводка</div>
+          </div>
+
+          <div class="balance-card" style="padding:14px">
+            <div class="row-between" style="margin-bottom:8px">
+              <div>
+                <div class="acc-title">Всего доходов</div>
+                <div style="font-size:16px; font-weight:800; color:var(--green)">+ ${fmt(totalInc)}</div>
+              </div>
+              <div style="text-align:right">
+                <div class="acc-title">Всего расходов</div>
+                <div style="font-size:16px; font-weight:800; color:var(--red)">− ${fmt(totalExp)}</div>
+              </div>
+            </div>
+            ${incBreakdownHtml ? `<div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08)">${incBreakdownHtml}</div>` : ''}
+          </div>
+
+          <div class="tx-list">${allTx || '<div style="color:var(--muted)">История пуста</div>'}</div>
+        `;
+      }
+    }
+
+    function renderTxItem(tx) {
+      return `
+        <div class="tx-item">
+          <div class="tx-left">
+            <div class="tx-icon">${esc(tx.categoryIcon)}</div>
+            <div style="min-width:0">
+              <div>
+                <span class="tx-cat">${esc(tx.categoryName)}</span>
+                <span class="tx-badge">${tx.account === 'card' ? 'Карта' : 'Нал'}</span>
+                ${tx.type === 'expense' && !tx.fromEnvelope ? `<span class="tx-badge" style="color:#fde68a">Свободные</span>` : ''}
+              </div>
+              ${tx.comment ? `<div class="tx-comment">${esc(tx.comment)}</div>` : ''}
+            </div>
+          </div>
+          <div class="tx-right">
+            <div>
+              <div class="tx-sum" style="color:${tx.type === 'income' ? 'var(--green)' : 'var(--red)'}">
+                ${tx.type === 'income' ? '+' : '−'} ${fmt(tx.amount)}
+              </div>
+              <div class="tx-date">${esc(tx.date)}</div>
+            </div>
+            <button class="del-btn" onclick="deleteTx('${tx.id}')">🗑</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function closeModal() {
+      document.getElementById('modalRoot').innerHTML = '';
+    }
+
+    // --- Модальное окно Доход / Расход (с калькулятором и режимом «Из свободных») ---
+    let txState = { type: 'expense', acc: 'card', spendSource: 'envelope', notice: '' };
+    function openTxModal(type) {
+      haptic(10);
+      const firstId = type === 'expense' ? state.expenseCategories[0]?.id : state.incomeSources[0]?.id;
+      const rememberedAcc = (firstId && state.lastAccByCat && state.lastAccByCat[firstId]) || 'card';
+      txState = { type, acc: rememberedAcc, spendSource: 'envelope', notice: '' };
+      renderTxModal();
+    }
+
+    function checkAutoSwitchAccount(sum, isExpense) {
+      if (!isExpense || sum <= 0) {
+        txState.notice = '';
+        return;
+      }
+      const cur = txState.acc;
+      const other = cur === 'card' ? 'cash' : 'card';
+      if (sum > state.accounts[cur] && sum <= state.accounts[other]) {
+        txState.acc = other;
+        txState.notice = `В «${cur === 'card' ? 'Карте' : 'Наличных'}» недостаточно средств (${fmt(state.accounts[cur])}). Автоматически выбран счет «${other === 'card' ? 'Карта' : 'Наличные'}».`;
+      } else if (sum <= state.accounts[cur]) {
+        txState.notice = '';
+      }
+    }
+
+    function renderTxModal(savedExpr = '', savedComment = '') {
+      const { free } = getTotals();
+      const list = txState.type === 'expense' ? state.expenseCategories : state.incomeSources;
+      const catsHtml = list.map(c => {
+        const envBal = state.envelopes[c.id] || 0;
+        const empty = txState.type === 'expense' && txState.spendSource === 'envelope' && envBal <= 0;
+        return `
+          <button class="cat-pick ${empty ? 'empty' : ''}" onclick="submitTx('${c.id}')">
+            <div style="font-size:18px">${esc(c.icon)}</div>
+            <div style="font-size:12px; font-weight:700; margin-top:4px">${esc(c.name)}</div>
+            ${txState.type === 'expense' && txState.spendSource === 'envelope'
+              ? `<div style="font-size:10px; color:${empty ? 'var(--red)' : 'var(--muted)'}">${empty ? 'Пуст (0 ₽)' : fmt(envBal)}</div>`
+              : ''}
+          </button>
+        `;
+      }).join('');
+
+      const calcVal = calcMath(savedExpr);
+      const hasFormula = /[+\-*/]/.test(savedExpr);
+
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:6px">
+              <div style="font-weight:800; font-size:16px">${txState.type === 'expense' ? 'Новый расход' : 'Новый доход'}</div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+
+            ${txState.type === 'expense' ? `
+              <div class="seg-row" style="grid-template-columns:1fr 1fr">
+                <button class="seg-btn ${txState.spendSource === 'envelope' ? 'active-red' : ''}" onclick="txState.spendSource='envelope'; renderTxModal(document.getElementById('txSumInp').value, document.getElementById('txComInp').value)">
+                  📩 Из конверта
+                </button>
+                <button class="seg-btn ${txState.spendSource === 'free' ? 'active-slate' : ''}" onclick="txState.spendSource='free'; renderTxModal(document.getElementById('txSumInp').value, document.getElementById('txComInp').value)">
+                  ⚡ Из свободных (${fmt(free)})
+                </button>
+              </div>
+            ` : ''}
+
+            <div class="seg-row" style="grid-template-columns:1fr 1fr">
+              <button class="seg-btn ${txState.acc === 'card' ? 'active-blue' : ''}" onclick="txState.acc='card'; renderTxModal(document.getElementById('txSumInp').value, document.getElementById('txComInp').value)">
+                💳 Карта (${fmt(state.accounts.card)})
+              </button>
+              <button class="seg-btn ${txState.acc === 'cash' ? 'active-green' : ''}" onclick="txState.acc='cash'; renderTxModal(document.getElementById('txSumInp').value, document.getElementById('txComInp').value)">
+                💵 Нал (${fmt(state.accounts.cash)})
+              </button>
+            </div>
+
+            <div id="txNoticeArea">${txState.notice ? `<div class="notice-box notice-amber">${esc(txState.notice)}</div>` : ''}</div>
+
+            <input id="txSumInp" type="text" inputmode="decimal" class="input-big" placeholder="Сумма или пример (4200-900)" value="${esc(savedExpr)}" oninput="onTxSumInput(this.value)" autofocus />
+            <div class="calc-preview" id="txCalcPreview">${hasFormula && calcVal > 0 ? '= ' + fmt(calcVal) : ''}</div>
+
+            <input id="txComInp" type="text" maxlength="40" class="input-sm" placeholder="Комментарий..." value="${esc(savedComment)}" />
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px">Тапни на категорию для сохранения:</div>
+            <div class="cat-grid">${catsHtml}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function onTxSumInput(val) {
+      const sum = calcMath(val);
+      const prev = document.getElementById('txCalcPreview');
+      if (prev) {
+        prev.textContent = (/[+\-*/]/.test(val) && sum > 0) ? '= ' + fmt(sum) : '';
+      }
+      const prevAcc = txState.acc;
+      checkAutoSwitchAccount(sum, txState.type === 'expense');
+      if (prevAcc !== txState.acc) {
+        const com = document.getElementById('txComInp').value;
+        renderTxModal(val, com);
+      }
+    }
+
+    function submitTx(catId) {
+      if (!canProceed()) return;
+      const sum = calcMath(document.getElementById('txSumInp').value);
+      const comment = document.getElementById('txComInp').value.trim();
+      if (sum <= 0) { showToast('Введите корректную сумму', true); return; }
+
+      const { free } = getTotals();
+
+      if (txState.type === 'expense') {
+        if (txState.spendSource === 'envelope') {
+          const envBal = state.envelopes[catId] || 0;
+          if (envBal <= 0) { showToast('Конверт пуст — пополните его', true); return; }
+          if (sum > envBal) { showToast('Недостаточно в конверте (ост. ' + fmt(envBal) + ')', true); return; }
+        } else {
+          if (sum > free) { showToast('Свободно вне конвертов только ' + fmt(free), true); return; }
+        }
+
+        checkAutoSwitchAccount(sum, true);
+        if (sum > state.accounts[txState.acc]) {
+          showToast('Недостаточно средств на счетах', true);
+          return;
+        }
+
+        const cat = state.expenseCategories.find(c => c.id === catId);
+        state.accounts[txState.acc] -= sum;
+        if (txState.spendSource === 'envelope') {
+          state.envelopes[catId] -= sum;
+        }
+        state.lastAccByCat[catId] = txState.acc;
+        state.transactions.unshift({
+          id: 'tx_' + Date.now(), type: 'expense', amount: sum, categoryId: catId,
+          categoryName: cat ? cat.name : 'Расход', categoryIcon: cat ? cat.icon : '💸',
+          account: txState.acc, comment, date: nowStr(),
+          fromEnvelope: txState.spendSource === 'envelope'
+        });
+        showToast('Списано ' + fmt(sum));
+      } else {
+        const src = state.incomeSources.find(s => s.id === catId);
+        state.accounts[txState.acc] += sum;
+        state.lastAccByCat[catId] = txState.acc;
+        state.transactions.unshift({
+          id: 'tx_' + Date.now(), type: 'income', amount: sum, categoryId: catId,
+          categoryName: src ? src.name : 'Доход', categoryIcon: src ? src.icon : '💰',
+          account: txState.acc, comment, date: nowStr(), fromEnvelope: false
+        });
+        showToast('+ ' + fmt(sum) + ' зачислено');
+      }
+      closeModal();
+      saveState();
+    }
+
+    // --- Модальное окно Конверта (Списать / Пополнить / Вернуть / История конверта / Удаление) ---
+    let envModalState = { catId: '', mode: 'spend', acc: 'card' };
+    function openEnvModal(catId, mode) {
+      haptic(10);
+      const remembered = (state.lastAccByCat && state.lastAccByCat[catId]) || 'card';
+      envModalState = { catId, mode, acc: remembered };
+      renderEnvModal();
+    }
+
+    function renderEnvModal() {
+      const cat = state.expenseCategories.find(c => c.id === envModalState.catId);
+      if (!cat) return;
+      const bal = state.envelopes[envModalState.catId] || 0;
+      const { free } = getTotals();
+      const isEmpty = bal <= 0;
+
+      const catHistory = state.transactions.filter(t => t.categoryId === cat.id).slice(0, 8);
+      const histHtml = catHistory.map(renderTxItem).join('');
+
+      let bodyHtml = '';
+      if (envModalState.mode === 'history') {
+        bodyHtml = `
+          <div class="tx-list" style="margin-top:8px">
+            ${histHtml || '<div style="color:var(--muted); font-size:13px; text-align:center; padding:14px">По этому конверту еще нет операций</div>'}
+          </div>
+        `;
+      } else if (envModalState.mode === 'spend' && isEmpty) {
+        bodyHtml = `
+          <div class="notice-box notice-red">
+            <div style="font-weight:800; font-size:14px; margin-bottom:4px">Конверт пуст — пополните его</div>
+            <div style="margin-bottom:10px">В этом конверте 0 ₽. Списание из пустого конверта заблокировано.</div>
+            <button class="btn-main btn-inc" style="width:100%; padding:10px; font-size:13px" onclick="envModalState.mode='topup'; renderEnvModal()">+ Пополнить этот конверт</button>
+          </div>
+        `;
+      } else {
+        bodyHtml = `
+          ${envModalState.mode === 'spend' ? `
+            <div class="seg-row" style="grid-template-columns:1fr 1fr">
+              <button class="seg-btn ${envModalState.acc === 'card' ? 'active-blue' : ''}" onclick="envModalState.acc='card'; renderEnvModal()">💳 Карта (${fmt(state.accounts.card)})</button>
+              <button class="seg-btn ${envModalState.acc === 'cash' ? 'active-green' : ''}" onclick="envModalState.acc='cash'; renderEnvModal()">💵 Нал (${fmt(state.accounts.cash)})</button>
+            </div>
+          ` : ''}
+          ${envModalState.mode === 'topup' ? `<div style="font-size:12px; color:var(--muted); margin-bottom:8px">Свободно для распределения: <b style="color:var(--green)">${fmt(free)}</b></div>` : ''}
+          <input id="envSumInp" type="text" inputmode="decimal" class="input-big" placeholder="Сумма или пример (1500+300)" oninput="const p=document.getElementById('envCalcPrev'); const v=calcMath(this.value); p.textContent=(/[+\\-*/]/.test(this.value)&&v>0)?'= '+fmt(v):''" autofocus />
+          <div class="calc-preview" id="envCalcPrev"></div>
+          ${envModalState.mode === 'spend' ? `<input id="envComInp" type="text" maxlength="40" class="input-sm" placeholder="Комментарий..." />` : ''}
+          <button class="btn-main btn-inc" style="width:100%" onclick="submitEnvModal()">
+            ${envModalState.mode === 'spend' ? 'Подтвердить расход' : (envModalState.mode === 'topup' ? 'Пополнить конверт' : 'Вернуть в свободные')}
+          </button>
+        `;
+      }
+
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between">
+              <div style="font-weight:800; font-size:16px">${esc(cat.icon)} ${esc(cat.name)} (${fmt(bal)})</div>
+              <div style="display:flex; gap:8px; align-items:center">
+                ${state.expenseCategories.length > 1 ? `<button class="del-btn" title="Удалить конверт" onclick="deleteEnvelope('${cat.id}')">🗑</button>` : ''}
+                <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+              </div>
+            </div>
+            <div class="seg-row" style="grid-template-columns:repeat(4,1fr)">
+              <button class="seg-btn ${envModalState.mode === 'spend' ? 'active-red' : ''}" onclick="envModalState.mode='spend'; renderEnvModal()">− Расход</button>
+              <button class="seg-btn ${envModalState.mode === 'topup' ? 'active-green' : ''}" onclick="envModalState.mode='topup'; renderEnvModal()">+ Внести</button>
+              <button class="seg-btn ${envModalState.mode === 'withdraw' ? 'active-slate' : ''}" onclick="envModalState.mode='withdraw'; renderEnvModal()">↩ Изъять</button>
+              <button class="seg-btn ${envModalState.mode === 'history' ? 'active-blue' : ''}" onclick="envModalState.mode='history'; renderEnvModal()">📋 (${catHistory.length})</button>
+            </div>
+            ${bodyHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function submitEnvModal() {
+      if (!canProceed()) return;
+      const sum = calcMath(document.getElementById('envSumInp').value);
+      if (sum <= 0) { showToast('Введите сумму', true); return; }
+      const catId = envModalState.catId;
+      const cat = state.expenseCategories.find(c => c.id === catId);
+      const bal = state.envelopes[catId] || 0;
+      const { free } = getTotals();
+
+      if (envModalState.mode === 'spend') {
+        if (sum > bal) { showToast('В конверте только ' + fmt(bal), true); return; }
+        let acc = envModalState.acc;
+        const other = acc === 'card' ? 'cash' : 'card';
+        if (sum > state.accounts[acc] && sum <= state.accounts[other]) {
+          acc = other;
+          showToast('Автоматически выбран счет ' + (acc === 'card' ? 'Карта' : 'Наличные'));
+        } else if (sum > state.accounts[acc]) {
+          showToast('Недостаточно средств на счетах', true);
+          return;
+        }
+        const com = document.getElementById('envComInp').value.trim();
+        state.accounts[acc] -= sum;
+        state.envelopes[catId] -= sum;
+        state.lastAccByCat[catId] = acc;
+        state.transactions.unshift({
+          id: 'tx_' + Date.now(), type: 'expense', amount: sum, categoryId: catId,
+          categoryName: cat.name, categoryIcon: cat.icon, account: acc,
+          comment: com, date: nowStr(), fromEnvelope: true
+        });
+      } else if (envModalState.mode === 'topup') {
+        if (sum > free) { showToast('Доступно вне конвертов только ' + fmt(free), true); return; }
+        state.envelopes[catId] = bal + sum;
+        showToast('Конверт пополнен на ' + fmt(sum));
+      } else if (envModalState.mode === 'withdraw') {
+        if (sum > bal) { showToast('В конверте всего ' + fmt(bal), true); return; }
+        state.envelopes[catId] = bal - sum;
+        showToast('Возвращено в свободные ' + fmt(sum));
+      }
+      closeModal();
+      saveState();
+    }
+
+    function deleteEnvelope(catId) {
+      if (state.expenseCategories.length <= 1) return;
+      state.expenseCategories = state.expenseCategories.filter(c => c.id !== catId);
+      delete state.envelopes[catId];
+      delete state.salaryTemplate[catId];
+      closeModal();
+      saveState();
+      showToast('Конверт удален, остаток возвращен в Свободные');
+    }
+
+    function deleteGoal(goalId) {
+      state.goals = state.goals.filter(g => g.id !== goalId);
+      saveState();
+      showToast('Цель удалена');
+    }
+
+    // --- Кнопка «Новый месяц» (умное закрытие остатков конвертов) ---
+    function openNewMonthModal() {
+      const { inEnv } = getTotals();
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:10px">
+              <div style="font-weight:800; font-size:16px">🗓 Закрытие месяца</div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+            <div style="font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.45">
+              Неизрасходованный остаток во всех конвертах сейчас: <b style="color:#fff">${fmt(inEnv)}</b>. Как поступить с остатками перед новым месяцем?
+            </div>
+            <button class="btn-main btn-inc" style="width:100%; margin-bottom:8px; font-size:13px" onclick="sweepEnvelopesToCushion()">
+              🛡️ Перевести остатки (${fmt(inEnv)}) в Подушку
+            </button>
+            <button class="btn-main" style="width:100%; background:#1e293b; font-size:13px" onclick="sweepEnvelopesToFree()">
+              ↩ Обнулить конверты (вернуть всё в Свободные)
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function sweepEnvelopesToFree() {
+      Object.keys(state.envelopes).forEach(k => { state.envelopes[k] = 0; });
+      closeModal();
+      saveState();
+      showToast('Конверты обнулены, деньги в Свободных');
+    }
+
+    function sweepEnvelopesToCushion() {
+      const { inEnv } = getTotals();
+      if (inEnv <= 0) { showToast('В конвертах 0 ₽', true); return; }
+      let remaining = inEnv;
+      const fromCard = Math.min(state.accounts.card, remaining);
+      state.accounts.card -= fromCard;
+      remaining -= fromCard;
+      if (remaining > 0) {
+        state.accounts.cash = Math.max(0, state.accounts.cash - remaining);
+      }
+      Object.keys(state.envelopes).forEach(k => { state.envelopes[k] = 0; });
+      state.cushion.current += inEnv;
+      closeModal();
+      saveState();
+      showToast('Сэкономленные ' + fmt(inEnv) + ' переведены в Подушку!');
+    }
+
+    // --- Управление Подушкой и Целями ---
+    let vAct = { targetType: 'cushion', goalId: '', mode: 'deposit', acc: 'card' };
+    function openVaultActionModal(targetType, goalId, mode) {
+      vAct = { targetType, goalId, mode, acc: 'card' };
+      const curTarget = targetType === 'cushion' ? state.cushion.target : (state.goals.find(g => g.id === goalId)?.target || 0);
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:10px">
+              <div style="font-weight:800; font-size:16px">
+                ${mode === 'editTarget' ? 'Изменить сумму цели' : (mode === 'deposit' ? 'Пополнить накопления' : 'Уменьшить / Вывести')}
+              </div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+            ${mode !== 'editTarget' ? `
+              <div class="seg-row" style="grid-template-columns:1fr 1fr">
+                <button class="seg-btn active-blue" id="vAccCard" onclick="vAct.acc='card'; document.getElementById('vAccCard').className='seg-btn active-blue'; document.getElementById('vAccCash').className='seg-btn'">💳 Карта (${fmt(state.accounts.card)})</button>
+                <button class="seg-btn" id="vAccCash" onclick="vAct.acc='cash'; document.getElementById('vAccCash').className='seg-btn active-green'; document.getElementById('vAccCard').className='seg-btn'">💵 Нал (${fmt(state.accounts.cash)})</button>
+              </div>
+            ` : ''}
+            <input id="vaultInp" type="text" inputmode="decimal" class="input-big" placeholder="Сумма в ₽" value="${mode === 'editTarget' ? curTarget : ''}" autofocus />
+            <button class="btn-main btn-inc" style="width:100%" onclick="submitVaultAction()">Сохранить</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitVaultAction() {
+      if (!canProceed()) return;
+      const sum = calcMath(document.getElementById('vaultInp').value);
+      if (sum <= 0) return;
+      const { free } = getTotals();
+
+      if (vAct.mode === 'editTarget') {
+        if (vAct.targetType === 'cushion') state.cushion.target = sum;
+        else state.goals = state.goals.map(g => g.id === vAct.goalId ? Object.assign({}, g, { target: sum }) : g);
+        showToast('Цель обновлена: ' + fmt(sum));
+      } else if (vAct.mode === 'deposit') {
+        if (sum > state.accounts[vAct.acc]) { showToast('Недостаточно средств на выбранном счете', true); return; }
+        if (sum > free) { showToast('Свободно вне конвертов только ' + fmt(free), true); return; }
+        state.accounts[vAct.acc] -= sum;
+        if (vAct.targetType === 'cushion') state.cushion.current += sum;
+        else state.goals = state.goals.map(g => g.id === vAct.goalId ? Object.assign({}, g, { current: g.current + sum }) : g);
+        showToast('Отложено ' + fmt(sum));
+      } else {
+        const curVal = vAct.targetType === 'cushion' ? state.cushion.current : (state.goals.find(g => g.id === vAct.goalId)?.current || 0);
+        if (sum > curVal) { showToast('Доступно только ' + fmt(curVal), true); return; }
+        state.accounts[vAct.acc] += sum;
+        if (vAct.targetType === 'cushion') state.cushion.current -= sum;
+        else state.goals = state.goals.map(g => g.id === vAct.goalId ? Object.assign({}, g, { current: g.current - sum }) : g);
+        showToast('Возвращено на счет ' + fmt(sum));
+      }
+      closeModal();
+      saveState();
+    }
+
+    // --- Шаблон распределения ЗП ---
+    function openTemplateModal() {
+      const rows = state.expenseCategories.map(c => `
+        <div class="row-between" style="background:#090d16; padding:8px 12px; border-radius:12px; margin-bottom:6px; border:1px solid var(--border)">
+          <span style="font-size:13px; font-weight:600">${esc(c.icon)} ${esc(c.name)}</span>
+          <input type="number" id="tpl_${c.id}" value="${state.salaryTemplate[c.id] || 0}" style="width:110px; background:#1e293b; color:#fff; padding:6px 8px; border-radius:8px; text-align:right; font-weight:700" />
+        </div>
+      `).join('');
+
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:10px">
+              <div style="font-weight:800; font-size:16px">⚡ Шаблон распределения ЗП</div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+            ${rows}
+            <button class="btn-main" style="width:100%; background:var(--indigo); margin-top:10px" onclick="applyTemplate()">Распределить по конвертам в 1 клик</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function applyTemplate() {
+      let needed = 0;
+      const nextTpl = {};
+      state.expenseCategories.forEach(c => {
+        const val = Math.max(0, Math.round(Number(document.getElementById('tpl_' + c.id).value) || 0));
+        nextTpl[c.id] = val;
+        needed += val;
+      });
+      const { free } = getTotals();
+      state.salaryTemplate = nextTpl;
+      if (needed > free) {
+        showToast('Шаблон сохранен, но нужно ' + fmt(needed) + ' (свободно ' + fmt(free) + ')', true);
+        saveState();
+        return;
+      }
+      state.expenseCategories.forEach(c => {
+        state.envelopes[c.id] = (state.envelopes[c.id] || 0) + nextTpl[c.id];
+      });
+      closeModal();
+      saveState();
+      showToast('Распределено ' + fmt(needed) + ' по конвертам!');
+    }
+
+    // --- Перевод Карта <-> Нал ---
+    let trDir = 'card_to_cash';
+    function openTransferModal() {
+      trDir = 'card_to_cash';
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:10px">
+              <div style="font-weight:800; font-size:16px">Перевод Карта ⇄ Наличные</div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+            <div class="seg-row" style="grid-template-columns:1fr 1fr">
+              <button class="seg-btn active-blue" id="trC2N" onclick="trDir='card_to_cash'; document.getElementById('trC2N').className='seg-btn active-blue'; document.getElementById('trN2C').className='seg-btn'">Карта → Наличные</button>
+              <button class="seg-btn" id="trN2C" onclick="trDir='cash_to_card'; document.getElementById('trN2C').className='seg-btn active-green'; document.getElementById('trC2N').className='seg-btn'">Наличные → Карта</button>
+            </div>
+            <input id="trSumInp" type="text" inputmode="decimal" class="input-big" placeholder="Сумма в ₽" autofocus />
+            <button class="btn-main btn-inc" style="width:100%" onclick="submitTransfer()">Перевести</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitTransfer() {
+      if (!canProceed()) return;
+      const sum = calcMath(document.getElementById('trSumInp').value);
+      if (sum <= 0) return;
+      const from = trDir === 'card_to_cash' ? 'card' : 'cash';
+      const to = from === 'card' ? 'cash' : 'card';
+      if (sum > state.accounts[from]) { showToast('Недостаточно средств на счете', true); return; }
+      state.accounts[from] -= sum;
+      state.accounts[to] += sum;
+      closeModal();
+      saveState();
+      showToast('Переведено ' + fmt(sum));
+    }
+
+    // --- Баланс + Бэкап в 1 клик (Экспорт / Импорт) ---
+    function openSettingsModal() {
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:10px">
+              <div style="font-weight:800; font-size:16px">⚙️ Баланс и Резервная копия</div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:4px">Остаток на Карте (₽):</div>
+            <input id="setCardInp" type="number" class="input-sm" value="${state.accounts.card}" />
+            <div style="font-size:12px; color:var(--muted); margin-bottom:4px">Остаток в Наличных (₽):</div>
+            <input id="setCashInp" type="number" class="input-sm" value="${state.accounts.cash}" />
+            <button class="btn-main btn-inc" style="width:100%; margin-bottom:10px; padding:11px; font-size:13px" onclick="saveCustomBalances(false)">Сохранить остатки</button>
+
+            <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px">
+              <div style="font-size:13px; font-weight:700; margin-bottom:8px">📦 Бэкап данных (перенос без потерь)</div>
+              <div class="action-grid" style="margin-bottom:8px">
+                <button class="btn-main" style="background:var(--indigo); padding:10px; font-size:12px" onclick="copyBackup()">📋 Скопировать бэкап</button>
+                <button class="btn-main" style="background:#1e293b; padding:10px; font-size:12px" onclick="restoreBackup()">📥 Восстановить</button>
+              </div>
+              <textarea id="backupArea" rows="2" class="input-sm" style="font-size:11px; font-family:monospace" placeholder="Для восстановления вставь скопированный код бэкапа сюда и нажми «Восстановить»..."></textarea>
+            </div>
+
+            <button class="btn-main" style="width:100%; background:#334155; font-size:12px; padding:10px; margin-top:4px" onclick="saveCustomBalances(true)">Обнулить демо-конверты и историю</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyBackup() {
+      const str = JSON.stringify(state);
+      const area = document.getElementById('backupArea');
+      if (area) {
+        area.value = str;
+        area.select();
+      }
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(str);
+        } else {
+          document.execCommand('copy');
+        }
+      } catch (e) {
+        try { document.execCommand('copy'); } catch (err) {}
+      }
+      showToast('Код бэкапа скопирован в буфер обмена!');
+    }
+
+    function restoreBackup() {
+      const raw = (document.getElementById('backupArea')?.value || '').trim();
+      if (!raw) { showToast('Вставьте строку бэкапа в поле ниже', true); return; }
+      try {
+        const parsed = JSON.parse(raw);
+        const valid = validateAndSanitizeState(parsed);
+        if (!valid) throw new Error('Invalid');
+        state = valid;
+        closeModal();
+        saveState();
+        showToast('Все данные успешно восстановлены!');
+      } catch (e) {
+        showToast('Ошибка: некорректный код бэкапа', true);
+      }
+    }
+
+    function saveCustomBalances(resetAll) {
+      state.accounts.card = Math.max(0, Math.round(Number(document.getElementById('setCardInp').value) || 0));
+      state.accounts.cash = Math.max(0, Math.round(Number(document.getElementById('setCashInp').value) || 0));
+      if (resetAll) {
+        Object.keys(state.envelopes).forEach(k => { state.envelopes[k] = 0; });
+        state.transactions = [];
+      }
+      closeModal();
+      saveState();
+      showToast('Баланс обновлен');
+    }
+
+    // --- Создание нового конверта / цели ---
+    let newItemType = 'expense';
+    function openNewItemModal(type) {
+      newItemType = type;
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="modal-backdrop" onclick="closeModal()">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="row-between" style="margin-bottom:10px">
+              <div style="font-weight:800; font-size:16px">${type === 'goal' ? 'Новая цель' : 'Новый конверт'}</div>
+              <button style="background:none; color:var(--muted); font-size:18px" onclick="closeModal()">✕</button>
+            </div>
+            <input id="newTitleInp" type="text" maxlength="22" class="input-sm" placeholder="Название..." autofocus />
+            ${type === 'goal' ? `<input id="newTargetInp" type="number" class="input-sm" placeholder="Целевая сумма в ₽" />` : ''}
+            <button class="btn-main btn-inc" style="width:100%" onclick="submitNewItem()">Добавить</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitNewItem() {
+      const name = document.getElementById('newTitleInp').value.trim();
+      if (!name) return;
+      if (newItemType === 'goal') {
+        const tar = Math.max(1000, Math.round(Number(document.getElementById('newTargetInp').value) || 50000));
+        state.goals.push({ id: 'g_' + Date.now(), name, current: 0, target: tar, icon: '🎯' });
+      } else {
+        const id = 'cat_' + Date.now();
+        state.expenseCategories.push({ id, name, icon: '📦' });
+        state.envelopes[id] = 0;
+        state.salaryTemplate[id] = 0;
+      }
+      closeModal();
+      saveState();
+    }
+
+    function deleteTx(id) {
+      const tx = state.transactions.find(t => t.id === id);
+      if (!tx) return;
+      if (tx.type === 'expense') {
+        state.accounts[tx.account] += tx.amount;
+        if (tx.fromEnvelope && tx.categoryId && state.envelopes[tx.categoryId] !== undefined) {
+          state.envelopes[tx.categoryId] = (state.envelopes[tx.categoryId] || 0) + tx.amount;
+        }
+      } else {
+        state.accounts[tx.account] = Math.max(0, state.accounts[tx.account] - tx.amount);
+      }
+      state.transactions = state.transactions.filter(t => t.id !== id);
+      saveState();
+      showToast('Операция отменена');
+    }
+
+    // Регистрация офлайн-кэша Service Worker (для работы без интернета + автообновлений)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
